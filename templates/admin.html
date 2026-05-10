@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 周星驰电影论坛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.users { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.posts { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .stat-icon.comments { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.movies { background: linear-gradient(135deg, #ffd700, #ff8c00); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        /* 表格区域 */
+        .data-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: #fff;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.3s;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .role-badge.admin {
+            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+        }
+
+        .role-badge.user {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-danger {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff6b6b;
+        }
+
+        .btn-danger:hover {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .btn-warning:hover {
+            background: #ffc107;
+            color: #1a1a2e;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 电影管理 */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .movie-card:hover {
+            border-color: #ffd700;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .movie-rating {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a2e;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .movie-meta {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: none;
+            animation: toastIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 确认对话框 */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-modal.show {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .confirm-content h3 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .confirm-content p {
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .confirm-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            周星驰电影论坛
+            <span class="admin-badge">管理员</span>
+        </a>
+        <div class="nav-links" id="navLinks">
+            <a href="/">首页</a>
+            <a href="/user">用户中心</a>
+            <a href="/admin">管理后台</a>
+            <a href="#" onclick="logout()">退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>管理后台</h1>
+            <p>管理论坛用户、帖子和电影数据</p>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon users">👥</div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">注册用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon posts">📝</div>
+                <div class="stat-value" id="totalPosts">0</div>
+                <div class="stat-label">帖子总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon comments">💬</div>
+                <div class="stat-value" id="totalComments">0</div>
+                <div class="stat-label">评论总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon movies">🎬</div>
+                <div class="stat-value" id="totalMovies">0</div>
+                <div class="stat-label">电影数量</div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">用户管理</button>
+            <button class="tab" onclick="switchTab('movies')">电影管理</button>
+        </div>
+
+        <!-- 用户管理 -->
+        <div class="data-section" id="usersSection">
+            <h3 class="section-title">👥 用户列表</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>角色</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" class="empty-state">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 电影管理 -->
+        <div class="data-section" id="moviesSection" style="display: none;">
+            <h3 class="section-title">🎬 电影列表</h3>
+            <div class="movie-grid" id="moviesGrid">
+                <div class="empty-state">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <h3>确认操作</h3>
+            <p id="confirmMessage">确定要执行此操作吗？</p>
+            <div class="confirm-btns">
+                <button class="btn btn-primary" onclick="confirmAction()">确定</button>
+                <button class="btn btn-danger" onclick="closeConfirmModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentUser = null;
+        let pendingAction = null;
+
+        async function checkAdminAccess() {
+            try {
+                const response = await fetch('/api/auth/current');
+                const data = await response.json();
+                
+                if (!data.logged_in) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                if (data.user.role !== 'admin') {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                currentUser = data.user;
+                loadStats();
+                loadUsers();
+                loadMovies();
+            } catch (error) {
+                showToast('加载失败', true);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const stats = await response.json();
+                
+                document.getElementById('totalUsers').textContent = stats.users;
+                document.getElementById('totalPosts').textContent = stats.posts;
+                document.getElementById('totalComments').textContent = stats.comments;
+                document.getElementById('totalMovies').textContent = stats.movies;
+            } catch (error) {
+                console.error('加载统计失败');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const users = await response.json();
+                
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email || '-'}</td>
+                        <td><span class="role-badge ${user.role}">${user.role === 'admin' ? '管理员' : '用户'}</span></td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="action-btns">
+                                ${user.id !== currentUser.id ? `
+                                    <button class="btn btn-warning" onclick="toggleUserRole(${user.id}, '${user.role}')">
+                                        ${user.role === 'admin' ? '降级' : '升级'}
+                                    </button>
+                                    <button class="btn btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                                ` : '<span style="color: rgba(255,255,255,0.4);">当前用户</span>'}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showToast('加载用户列表失败', true);
+            }
+        }
+
+        async function loadMovies() {
+            try {
+                const response = await fetch('/api/movies');
+                const movies = await response.json();
+                
+                const grid = document.getElementById('moviesGrid');
+                grid.innerHTML = movies.map(movie => `
+                    <div class="movie-card">
+                        <img class="movie-poster" src="${movie.poster}" alt="${movie.title}"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%231a1a2e%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22100%22 text-anchor=%22middle%22 fill=%22%23ffd700%22 font-size=%2236%22>🎬</text></svg>'">
+                        <div class="movie-info">
+                            <div class="movie-title">
+                                ${movie.title}
+                                <span class="movie-rating">${movie.rating}</span>
+                            </div>
+                            <div class="movie-meta">
+                                <div>${movie.year} | ${movie.director}</div>
+                                <div>${movie.genre}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showToast('加载电影列表失败', true);
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('usersSection').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('moviesSection').style.display = tab === 'movies' ? 'block' : 'none';
+        }
+
+        async function toggleUserRole(userId, currentRole) {
+            const newRole = currentRole === 'admin' ? 'user' : 'admin';
+try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: newRole })
+                });
+                
+                if (response.ok) {
+                    showToast(`用户已${newRole === 'admin' ? '升级为管理员' : '降级为普通用户'}`);
+                    loadUsers();
+                    loadStats();
+                } else {
+                    showToast('操作失败', true);
+                }
+            } catch (error) {
+                showToast('操作失败', true);
+            }
+        }
+
+        function deleteUser(userId) {
+            document.getElementById('confirmMessage').textContent = '确定要删除这个用户吗？此操作不可恢复！';
+            pendingAction = async () => {
+                try {
+                    const response = await fetch(`/api/admin/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showToast('用户已删除');
+                        loadUsers();
+                        loadStats();
+                    } else {
+                        const data = await response.json();
+                        showToast(data.error || '删除失败', true);
+                    }
+                } catch (error) {
+                    showToast('删除失败', true);
+                }
+            };
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmAction() {
+            if (pendingAction) {
+                pendingAction();
+                pendingAction = null;
+            }
+            closeConfirmModal();
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingAction = null;
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                showToast('退出失败', true);
+            }
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        checkAdminAccess();
+    </script>
+</body>
+</html>
